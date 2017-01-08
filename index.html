@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chinese Hearts</title>
+	<!-- jQuery-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<!-- Boostrap JS -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+	<script src="hearts.js"></script>
+	<script>
+
+	</script>
+</head>
+
+<body onload="initGame()">
+	<div class="container">
+		<div class="col-md-2">
+			<h4>North's Hand:</h4>
+			<ul class="list-group" id="north-hand"></ul>
+		</div>
+
+		<div class="col-md-2">
+			<h4>West's Hand:</h4>
+			<ul class="list-group" id="west-hand"></ul>
+		</div>
+
+		<div class="col-md-2">
+			<h4>South's Hand:</h4>
+			<ul class="list-group" id="south-hand"></ul>
+		</div>
+
+		<div class="col-md-2">
+			<h4>East's Hand:</h4>
+			<ul class="list-group" id="east-hand"></ul>
+		</div>
+
+		<div class="col-md-4">
+			<h4>North's Score: </h4><span id="north-score">0</span>
+			<h4>West's Score: </h4><span id="west-score">0</span>
+			<h4>South's Score: </h4><span id="south-score">0</span>
+			<h4>East's Score: </h4><span id="east-score">0</span>
+
+			<hr>
+			<h4>Game Status</h4>
+			<div id="status"></div>
+
+			<hr>
+			<button class="btn" onclick="initGame()">New Game</button>
+			<button class="btn" onclick="simulate()">Simulate</button>
+		</div>
+	</div>
+</body>
+
+</html>
