@@ -277,7 +277,7 @@ function initGame() {
 
 	game.status("It is " + game.players[game.currPlayer].name + "'s turn.");
 
-	playRound(); // for debugging
+	//playRound(); // for debugging
 }
 
 /**
