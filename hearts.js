@@ -66,6 +66,13 @@ function Player(name) {
 	this.score =  0;
 	this.hand = [];
 	this.taken = [];
+	this.algorithm = function() {
+		var p = game.players[game.currPlayer];
+		for (var c of p.hand) {
+			if (game.playCard(game.currPlayer, c))
+				break;
+		}
+	}
 }
 
 /**
@@ -76,6 +83,10 @@ function Game(north, west, south, east) {
     this.currPlayer = 0; // Arbitrary.  Will be changed with find2().
     this.leadSuit = '';
     this.trick = [];
+
+    // Variables for game simulation
+    this.sim = false;
+    this.interval;
 
     /**
     Updates #status <div> if msg is defined.
@@ -141,16 +152,24 @@ function Game(north, west, south, east) {
 	}
 
 	/**
-	Updates hand display of players.
+	Updates hand display of player.
 	Updates all hands if playerIndex is omitted.
 	*/
 	this.updateHand = function(playerIndex) {
 		var ids = ['#north-hand', '#west-hand', '#south-hand', '#east-hand'];
 		if (playerIndex == undefined) 
 			for (var i = 0; i < 4; i++)
-				$(id[i]).html(this.listHand(i));
+				$(ids[i]).html(this.listHand(i));
 		else
 			$(ids[playerIndex]).html(this.listHand(playerIndex));
+	}
+
+	/**
+	Updates scoreboard.
+	*/
+	this.updateScoreboard = function() {
+		var ids = ['#north-score', '#west-score', '#south-score', '#east-score'];
+		for (var i = 0; i < 4; i++) $(ids[i]).html(this.players[i].score);
 	}
 
     /**
@@ -270,19 +289,54 @@ function Game(north, west, south, east) {
 			}
 
 			// Update scoreboard
-			var id = ['#north-score', '#west-score', '#south-score', '#east-score'][i];
-			$(id).html(p.score);
+			game.updateScoreboard();
 
 			// Reset taken cards
 			p.taken = [];
 		}
-		game.deal();
+
+		var loser;
+
+		for (var p of this.players) 
+			if (p.score <= -1000) 
+				loser = p;
+
+		if (loser == undefined) game.deal();
+		else {
+			game.status(loser.name + ' loses.');
+			if (this.sim) simulate();
+		}
+	}
+
+
+	/**
+	Sample algorithm.  Plays first legal card in hand.
+	*/
+	this.play = function() {
+		var p = game.players[game.currPlayer];
+		for (var c of p.hand) {
+			if (game.playCard(game.currPlayer, c))
+				break;
+		}
+	}
+
+	/**
+	Quickly play through games.
+	*/
+	this.simulate = function() {
+		if (!this.sim) {
+			this.sim = true;
+			this.interval = setInterval(this.play, 10);
+		}
+
+		else {
+			this.sim = false;
+			clearInterval(this.interval);
+		}
 	}
 }
 
 var north, west, south, east, game;
-var sim = false;
-var loop;
 
 /**
 Initializes game.
@@ -296,33 +350,9 @@ function initGame() {
 
 	game.deal();
 	game.currPlayer = game.find2();
-	$('#north-hand').html(game.listHand(0));
-	$('#west-hand').html(game.listHand(1));
-	$('#south-hand').html(game.listHand(2));
-	$('#east-hand').html(game.listHand(3));
+	game.updateHand();
+	game.updateScoreboard();
 
 	game.status("It is " + game.players[game.currPlayer].name + "'s turn.");
 }
 
-function play() {
-	var p = game.players[game.currPlayer];
-	for (var c of p.hand) {
-		if (game.playCard(game.currPlayer, c))
-			break;
-	}
-}
-
-/**
-Quickly play through a round. For debugging.
-*/
-function simulate() {
-	if (!sim) {
-		sim = true;
-		loop = setInterval(play, 500);
-	}
-
-	else {
-		sim = false;
-		clearInterval(loop);
-	}
-}
