@@ -1,7 +1,7 @@
 // Round = 1 set of 13 cards
 // Order is p1, p2, p3, player.  p1 is left of player.  p2 is across.  p3 is right.
  
-const {hand, bestFreeCardsToPlay, otherPlayers, round} = require('./config');
+const { cardsPlayed, hand, bestFreeCardsToPlay, otherPlayers, round} = require('./config');
 
 const OtherPlayer = function(name) {
     self = {
@@ -35,7 +35,7 @@ if (round.p1 && round.p2 && round.p3) { // All players have thrown a card
  
 const returnOnlySameSuit = (card, suit) => {
 if (card && card.length > 0)
-return card[card.length - 1] == suit;
+    return card[card.length - 1] == suit;
 return false;
 }
  
@@ -112,11 +112,48 @@ const getFreeCardToPlay = (hand) => {
     return hand[0];
 };
  
-let cardToBeat = getCardToBeat(round);
-console.log('card to beat: ',cardToBeat);
-let winningCard = getWinningCard(cardToBeat, hand);
-console.log('winningCard: ', winningCard);
- 
+const tryToAvoidTrick = (cardToBeat, hand) => {
+    let otherPlayersToPlay = 0;
+    if (round.p1 && round.p2 === null)
+        otherPlayersToPlay = 1;
+    else if (round.p1 === null && round.p2 === null)
+        otherPlayersToPlay = 2;
+    let numOfCardsThatCanBeatMyBest = 0;
+}
+
+const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand) => {
+    let suit  = myBestCard[myBestCard.length -1];
+    let myBest = parseInt(myBestCard.substring(0,myBestCard.indexOf('-')));
+
+    let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
+    let usedCards = cardsPlayed.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
+    
+    // I can merge the cards in my hand with the used cards
+    // since other players can't use my cards  --They actually can cause players can impact other players :)
+    Array.prototype.push.apply(usedCards, suitInMyHand);
+    
+    let numOfSuitLeft = 14;
+    
+    if (round.p1[round.p1.length - 1] === suit) 
+        usedCards.push(round.p1);
+    if (round.p2[round.p2.length - 1] === suit)
+        usedCards.push(round.p2);
+    if (round.p3[round.p3.length - 1] === suit)
+        usedCards.push(round.p3);
+    let formattedUsedCards = getIntsFromCardArray(usedCards);
+    let usedCardsThatBeatMyBest = formattedUsedCards.filter((element) => element < myBest);
+    console.log('number of suit available to play: ', numOfSuitLeft);
+
+
+    return myBest;
+};
+
+
+let card = getNumOfCardsThatCanBeatMyBest('4-D', hand);
+console.log(card);
+
+
+
 
  module.exports = {
     getWinningCard,
