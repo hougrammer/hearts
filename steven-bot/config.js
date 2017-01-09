@@ -5,13 +5,13 @@ const bestFreeCardsToPlay = ['12-S', '14-H','13-H', '12-H', '11-H', '10-H', '9-H
 const round = {
 startSuit : 'D',
 playerOrder: 3,
-p1: '14-H',
+p1: '12-H',
 p2: '12-S',
-p3: '7-D'
+p3: '11-D'
 };
  
-const hand = ['1-C', '2-C', '15-C', '3-C', '14-H'];
-const cardsPlayed = ['14-D', '13-C', '12-S', '13-H', '12-H'];
+const hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '4-D', '8-D'];
+const cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '12-S', '13-H', '12-H'];
 
 const pointTotals = {
 	'14-H' : 50,
@@ -68,5 +68,6 @@ module.exports = {
 	hand,
 	round,
 	otherPlayers,
-	pointTotals
+	pointTotals,
+	cardsPlayed
 }
