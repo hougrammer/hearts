@@ -1,0 +1,25 @@
+{
+  "name": "hearts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "hearts.js",
+  "dependencies": {
+    "expect": "^1.20.2"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  },
+  "scripts": {
+    "test": "mocha steven-bot/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hougrammer/hearts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hougrammer/hearts/issues"
+  },
+  "homepage": "https://github.com/hougrammer/hearts#readme"
+}
