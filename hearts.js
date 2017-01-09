@@ -61,17 +61,16 @@ function cardName(number) {
 /**
 Player class.
 */
-function Player(name) {
+function Player(playerIndex, name) {
+	this.playerIndex = playerIndex;
 	this.name = name;
 	this.score =  0;
 	this.hand = [];
 	this.taken = [];
 	this.algorithm = function() {
-		var p = game.players[game.currPlayer];
-		for (var c of p.hand) {
-			if (game.playCard(game.currPlayer, c))
+		for (var c of this.hand)
+			if (game.playCard(playerIndex, c))
 				break;
-		}
 	}
 }
 
@@ -213,8 +212,6 @@ function Game(north, west, south, east) {
 		else this.currPlayer = this.nextPlayer();
 
 		// Update display.
-		// var id = ['#north-hand', '#west-hand', '#south-hand', '#east-hand'][playerIndex];
-		// $(id).html(this.listHand(playerIndex));
 		this.updateHand(playerIndex);
 
 		// Check for end of round.
@@ -240,7 +237,7 @@ function Game(north, west, south, east) {
 			}
 		}
 
-		// Give the cards to taker.
+		// Give the cards to taker.  Ignore cards not in SPECIALS.
 		var taker = this.players[takerIndex];
 		for (var c of cards) {
 			if (c in SPECIALS)
@@ -295,29 +292,32 @@ function Game(north, west, south, east) {
 			p.taken = [];
 		}
 
+		// Check for a loser.
 		var loser;
-
 		for (var p of this.players) 
 			if (p.score <= -1000) 
 				loser = p;
 
+		// Deal another hand if there is no loser.  Else end game.
 		if (loser == undefined) game.deal();
 		else {
 			game.status(loser.name + ' loses.');
-			if (this.sim) simulate();
+
+			// Stop simulation if ongoing.
+			if (this.sim) {
+				this.sim = false;
+				clearInterval(this.interval);
+			}
 		}
 	}
 
 
 	/**
-	Sample algorithm.  Plays first legal card in hand.
+	Driver function to call player choice algorithm.
 	*/
-	this.play = function() {
+	this.callAlgo = function() {
 		var p = game.players[game.currPlayer];
-		for (var c of p.hand) {
-			if (game.playCard(game.currPlayer, c))
-				break;
-		}
+		p.algorithm();
 	}
 
 	/**
@@ -326,7 +326,7 @@ function Game(north, west, south, east) {
 	this.simulate = function() {
 		if (!this.sim) {
 			this.sim = true;
-			this.interval = setInterval(this.play, 10);
+			this.interval = setInterval(this.callAlgo, 10);
 		}
 
 		else {
@@ -342,12 +342,17 @@ var north, west, south, east, game;
 Initializes game.
 */
 function initGame() {
-	north = new Player('North');
-	west = new Player('West');
-	south = new Player('South');
-	east = new Player('East');
+	north = new Player(0, 'North');
+	west = new Player(1, 'West');
+	south = new Player(2, 'South');
+	east = new Player(3, 'East');
 	game = new Game(north, west, south, east);
 
+	// Stop simulation if ongoing.
+	if (game.sim) {
+		game.sim = false;
+		clearInterval(game.interval);
+	}
 	game.deal();
 	game.currPlayer = game.find2();
 	game.updateHand();
