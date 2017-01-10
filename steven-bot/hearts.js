@@ -1,6 +1,6 @@
 // Round = 1 set of 13 cards
 // Order is p1, p2, p3, player.  p1 is left of player.  p2 is across.  p3 is right.
- 
+
 const { cardsPlayed, hand, bestFreeCardsToPlay, otherPlayers, round} = require('./config');
 
 const OtherPlayer = function(name) {
@@ -10,35 +10,35 @@ const OtherPlayer = function(name) {
         hasHearts : true,
         hasClubs : true,
         hasDiamonds : true,
- 
+
         pointsTotal : 0,
         pointsRound: 0
     };
     otherPlayers[name] = self;
     return self;
 };
- 
 
- 
+
+
 const getScore = () => {
 };
- 
+
 const avoidTrick = (round, hand, otherPlayers) => {
 if (round.p1 && round.p2 && round.p3) { // All players have thrown a card
-     
+
 }
 // Check to see if p1 hasn't, does he have any of the suit? (if no, avoid trick)
 // Check to see if p2 hasn't; does he have the suit?
 // Check to se eif p3 hasn't; does he have the suit?
- 
+
 };
- 
+
 const returnOnlySameSuit = (card, suit) => {
 if (card && card.length > 0)
     return card[card.length - 1] == suit;
 return false;
 }
- 
+
 const getCardToBeat = round => {
     let cardsPlayed = [round.p1, round.p2, round.p3];
     let suit = round.startSuit;
@@ -47,7 +47,7 @@ const getCardToBeat = round => {
     let number = Math.max.apply(null, formattedCards);
     return number + '-' + suit;
 };
- 
+
 const getWinningCard = (cardToBeat, hand) => {
     let suit = cardToBeat[cardToBeat.length - 1];
     let split = cardToBeat.indexOf('-');
@@ -67,9 +67,9 @@ const getWinningCard = (cardToBeat, hand) => {
         console.log('You have no cards that can guarantee that you avoid this trick.');
         return '15-C';
     }
- 
+
 }
- 
+
 const getIntsFromCardArray = arrayOfCards => {
     let formattedCards = [];
     for (let i = 0; i < arrayOfCards.length; i++) {
@@ -78,7 +78,7 @@ const getIntsFromCardArray = arrayOfCards => {
     }
     return formattedCards;
 };
- 
+
 const getClosestLowerCard = (cards, cardToBeat, suit) => {
     let allDifferences = [];
     for (let i = 0; i < cards.length; i++) {
@@ -99,19 +99,19 @@ const getClosestLowerCard = (cards, cardToBeat, suit) => {
     let bestCard = sortedPossibleChoices[0].card + '-' + suit;
     return bestCard;
 };
- 
+
 const getFreeCardToPlay = (hand) => {
     for (let i = 0; i < bestFreeCardsToPlay.length ; i++) {
         let indexOfCard = hand.indexOf(bestFreeCardsToPlay[i]);
         if(indexOfCard !== -1) {
             return hand[indexOfCard];
         }
-    }   
+    }
     // I don't have a preference in what i should play.  I should do the largest card in the hand
     // Unless I want to add suit tactics
     return hand[0];
 };
- 
+
 const tryToAvoidTrick = (cardToBeat, hand) => {
     let otherPlayersToPlay = 0;
     if (round.p1 && round.p2 === null)
@@ -121,36 +121,37 @@ const tryToAvoidTrick = (cardToBeat, hand) => {
     let numOfCardsThatCanBeatMyBest = 0;
 }
 
-const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand) => {
-    let suit  = myBestCard[myBestCard.length -1];
-    let myBest = parseInt(myBestCard.substring(0,myBestCard.indexOf('-')));
 
-    let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
-    let usedCards = cardsPlayed.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
-    
+const getAllUnavilableCardsPerSuit = (suit, hand) => {
+    let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, suit));
+    let usedCards = cardsPlayed.filter((element) => returnOnlySameSuit(element, suit));
     // I can merge the cards in my hand with the used cards
     // since other players can't use my cards  --They actually can cause players can impact other players :)
     Array.prototype.push.apply(usedCards, suitInMyHand);
-    
-    let numOfSuitLeft = 14;
-    
-    if (round.p1[round.p1.length - 1] === suit) 
+    if (round.p1 && round.p1[round.p1.length - 1] === suit)
         usedCards.push(round.p1);
-    if (round.p2[round.p2.length - 1] === suit)
+    if (round.p2 && round.p2[round.p2.length - 1] === suit)
         usedCards.push(round.p2);
-    if (round.p3[round.p3.length - 1] === suit)
+    if (round.p3 && round.p3[round.p3.length - 1] === suit)
         usedCards.push(round.p3);
+    return usedCards;
+};
+
+const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand) => {
+    let suit  = myBestCard[myBestCard.length -1];
+    let myBest = parseInt(myBestCard.substring(0,myBestCard.indexOf('-')));
+    let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
+    let usedCards = getAllUnavilableCardsPerSuit(suit, hand);
+
     let formattedUsedCards = getIntsFromCardArray(usedCards);
     let usedCardsThatBeatMyBest = formattedUsedCards.filter((element) => element < myBest);
-    console.log('number of suit available to play: ', numOfSuitLeft);
-
-
-    return myBest;
+    let availableCardsThatBeatMyBest = myBest - usedCardsThatBeatMyBest.length - 2;
+    return availableCardsThatBeatMyBest;
 };
 
 
-let card = getNumOfCardsThatCanBeatMyBest('4-D', hand);
-console.log(card);
+let card = getNumOfCardsThatCanBeatMyBest('7-D', hand);
+//console.log(card);
 
 
 
@@ -158,16 +159,18 @@ console.log(card);
  module.exports = {
     getWinningCard,
     getCardToBeat,
-    hand
+    hand,
+    getNumOfCardsThatCanBeatMyBest,
+    getAllUnavilableCardsPerSuit
  };
- 
- 
+
+
 // For risk, see how many points are on the table.
 // See how many points are left.
 // Calculate risk.  Risk = Points on table - points remaining in game
 // Choose card:  If risk is high, choose lowest card.  If risk low, play highest card. Middle risk: middle card
     // Need to decide thresholds
- 
+
 // For starting a trick
 // Risk:  How many points are remaining.  Known safe cards (against cards played and other players have suit)
 // Reward:  Cards in hand
