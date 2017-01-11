@@ -32,7 +32,7 @@ const SPECIALS = {
 Utility array summer.
 */
 function sum(arr) { 
-	return arr.reduce(function(a,b) {
+	return arr.reduce((a,b) => {
 		return a+b;
 	}, 0);
 }
@@ -79,7 +79,7 @@ Game class.
 */
 function Game(north, west, south, east) {
     this.players = [north, west, south, east]
-    this.currPlayer = 0; // Arbitrary.  Will be changed with find2().
+    this.currPlayerIndex = 0; // Arbitrary.  Will be changed with find2().
     this.leadSuit = '';
     this.trick = [];
 
@@ -132,7 +132,7 @@ function Game(north, west, south, east) {
 	Traditionally counterclockwise.
 	*/
     this.nextPlayer = function() {
-    	var ret = (this.currPlayer == 3) ? 0 : this.currPlayer+1;
+    	var ret = (this.currPlayerIndex == 3) ? 0 : this.currPlayerIndex+1;
     	game.status('Next player is ' + this.players[ret].name);
         return ret;
     }
@@ -179,8 +179,8 @@ function Game(north, west, south, east) {
 		var name = player.name;
 
 		// Check if it's this player's turn.
-		if (playerIndex != this.currPlayer) {
-			this.status('It is ' + this.players[this.currPlayer].name + '\'s turn');
+		if (playerIndex != this.currPlayerIndex) {
+			this.status('It is ' + this.players[this.currPlayerIndex].name + '\'s turn');
 			return false;
 		}
 
@@ -208,14 +208,14 @@ function Game(north, west, south, east) {
 		this.trick.push([playerIndex, player.hand.splice(i, 1)[0]]);
 
 		// Update current player.
-		if (this.trick.length == 4) this.currPlayer = this.evalTrick();
-		else this.currPlayer = this.nextPlayer();
+		if (this.trick.length == 4) this.currPlayerIndex = this.evalTrick();
+		else this.currPlayerIndex = this.nextPlayer();
 
 		// Update display.
 		this.updateHand(playerIndex);
 
 		// Check for end of round.
-		if (!this.players[this.currPlayer].hand.length) game.evalRound();
+		if (!this.players[this.currPlayerIndex].hand.length) game.evalRound();
 
 		return true;
 	}
@@ -269,7 +269,7 @@ function Game(north, west, south, east) {
 					case 23: goat = true; break;
 					case 50: 
 						pig = true; 
-						this.currPlayer = i; // Player with pig starts next round.
+						this.currPlayerIndex = i; // Player with pig starts next round.
 						break;
 					default: hearts += SPECIALS[c];
 				}
@@ -354,10 +354,10 @@ function initGame() {
 		clearInterval(game.interval);
 	}
 	game.deal();
-	game.currPlayer = game.find2();
+	game.currPlayerIndex = game.find2();
 	game.updateHand();
 	game.updateScoreboard();
 
-	game.status("It is " + game.players[game.currPlayer].name + "'s turn.");
+	game.status("It is " + game.players[game.currPlayerIndex].name + "'s turn.");
 }
 
