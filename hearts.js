@@ -68,33 +68,6 @@ class Player {
 		this.hand = [];
 		this.taken = [];
 	}
-
-	/**
-	Check hand for suit.
-	With lots of checks for Steven's suit notation.
-	*/
-	checkForSuit(suit) {
-		if (typeof suit == 'number') suit = SUITS[suit];
-		else if (typeof suit == 'string') {
-			switch (suit.toLowerCase()) {
-				case 'club': case 'clubs': case 'c': suit = 'Clubs'; break;
-				case 'diamond': case 'diamonds': case 'd': suit = 'Diamonds'; break;
-				case 'heart': case 'hearts': case 'h': suit = 'Hearts'; break;
-				case 'spade': case 'spades': case 's': suit = 'Spades'; break;
-				default: console.log(Error('Invalid suit.')); return false;
-			}
-		}
-		else {
-			console.log(Error('Invalid suit.'));
-			return false;
-		}
-
-		for (let c of this.hand) 
-			if (cardSuit(c) == suit)
-				return true;
-
-		return false;
-	}
 }
 
 /**
