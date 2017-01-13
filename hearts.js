@@ -67,6 +67,7 @@ class Player {
 		this.hand = [];
 		this.taken = [];
 	}
+<<<<<<< HEAD
 
 	/**
 	Overwrite algorithm() with child classes.
@@ -102,6 +103,8 @@ class Player {
 
 		return false;
 	}
+=======
+>>>>>>> 45b153736918d7c04bf982eb8b082354b24379bd
 }
 
 /**
