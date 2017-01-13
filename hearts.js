@@ -60,14 +60,51 @@ function cardName(number) {
 Player class.
 */
 class Player {
-	constructor(playerIndex, name, algorithm) {
+	constructor(playerIndex, name) {
 		this.playerIndex = playerIndex;
 		this.name = name;
-		this.algorithm = algorithm
 		this.score =  0;
 		this.hand = [];
 		this.taken = [];
 	}
+<<<<<<< HEAD
+
+	/**
+	Overwrite algorithm() with child classes.
+	*/
+	algorithm() {
+		throw Error('Player class has no algorithm.');
+	}
+
+	/**
+	Check hand for suit.
+	With lots of checks for Steven's suit notation.
+	*/
+	checkForSuit(suit) {
+		if (typeof suit == 'number') suit = SUITS[suit];
+		else if (typeof suit == 'string') {
+			switch (suit.toLowerCase()) {
+				case 'club': case 'clubs': case 'c': suit = 'Clubs'; break;
+				case 'diamond': case 'diamonds': case 'd': suit = 'Diamonds'; break;
+				case 'heart': case 'hearts': case 'h': suit = 'Hearts'; break;
+				case 'spade': case 'spades': case 's': suit = 'Spades'; break;
+				case '': return true;
+				default: console.error('Invalid suit.'); return false;
+			}
+		}
+		else {
+			console.error('Invalid suit.');
+			return false;
+		}
+
+		for (let c of this.hand) 
+			if (cardSuit(c) == suit)
+				return true;
+
+		return false;
+	}
+=======
+>>>>>>> 45b153736918d7c04bf982eb8b082354b24379bd
 }
 
 /**
@@ -130,7 +167,7 @@ class Game {
 	Traditionally counterclockwise.
 	*/
     nextPlayer() {
-    	var ret = (this.currPlayerIndex == 3) ? 0 : this.currPlayerIndex+1;
+    	var ret = (this.currPlayerIndex == 3) ? 0 : this.currPlayerIndex + 1;
         return ret;
     }
 
@@ -141,9 +178,9 @@ class Game {
 		var player = this.players[playerIndex];
 		var ret = '';
 		for (var c of player.hand)
-			ret += '<a class="list-group-item" onclick="game.playCard(' + playerIndex + ',' + c + ')">' 
-				+ cardName(c) 
-				+ '</a>';
+			ret += '<a class="list-group-item" onclick="game.playCard(${playerIndex},${c})">'
+					+ cardName(c)
+					+ '</a>';
 		return ret;
 	}
 
@@ -301,10 +338,7 @@ class Game {
 			game.status(loser.name + ' loses.');
 
 			// Stop simulation if ongoing.
-			if (this.sim) {
-				this.sim = false;
-				clearInterval(this.interval);
-			}
+			this.stopSim();
 		}
 	}
 
@@ -317,19 +351,21 @@ class Game {
 		p.algorithm();
 	}
 
-	/**
-	Quickly play through games.
-	*/
-	simulate() {
-		if (!this.sim) {
-			this.sim = true;
-			this.interval = setInterval(this.callAlgo, 10);
-		}
 
-		else {
-			this.sim = false;
-			clearInterval(this.interval);
-		}
+	/**
+	Simulation functions.
+	*/
+	startSim() {
+		this.sim = true;
+		this.interval = setInterval(this.callAlgo, 10);
+	}
+	stopSim() {
+		this.sim = false;
+		clearInterval(this.interval);
+	}
+	toggleSim() {
+		if (!this.sim) this.startSim();
+		else this.stopSim();
 	}
 }
 
@@ -339,17 +375,15 @@ var north, west, south, east, game;
 Initializes game.
 */
 function initGame() {
-	north = new Player(0, 'North', david);
-	west = new Player(1, 'West', defaultBot);
-	south = new Player(2, 'South', defaultBot);
-	east = new Player(3, 'East', defaultBot);
-	game = new Game(north, west, south, east);
-
 	// Stop simulation if ongoing.
-	if (game.sim) {
-		game.sim = false;
-		clearInterval(game.interval);
-	}
+	if (game != undefined) game.stopSim();
+
+	north = new DavidBot(0, 'North');
+	west = new DefaultBot(1, 'West');
+	south = new DefaultBot(2, 'South');
+	east = new DefaultBot(3, 'East');
+	game = new Game(north, west, south, east);
+	
 	game.deal();
 	game.currPlayerIndex = game.find2();
 	game.updateHand();
