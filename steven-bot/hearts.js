@@ -19,24 +19,18 @@ const OtherPlayer = function(name) {
 };
 
 
-
-const getScore = () => {
-};
-
-const avoidTrick = (round, hand, otherPlayers) => {
-if (round.p1 && round.p2 && round.p3) { // All players have thrown a card
-
-}
-// Check to see if p1 hasn't, does he have any of the suit? (if no, avoid trick)
-// Check to see if p2 hasn't; does he have the suit?
-// Check to se eif p3 hasn't; does he have the suit?
-
-};
-
 const returnOnlySameSuit = (card, suit) => {
 if (card && card.length > 0)
     return card[card.length - 1] == suit;
 return false;
+}
+
+const addSuitToNumArray = (array, suit) => {
+    let res = [];
+    for (let i = 0; i< array.length; i++) {
+        res.push(`${array[i]}-${suit}`);
+    }
+    return res;
 }
 
 const getCardToBeat = round => {
@@ -65,7 +59,7 @@ const getWinningCard = (cardToBeat, hand) => {
     //Code to handle what happens if you can choose any card you want
     // THis should move somewhere else.  I should return null here.
         console.log('You have no cards that can guarantee that you avoid this trick.');
-        return '15-C';
+        return null;
     }
 
 }
@@ -122,7 +116,7 @@ const tryToAvoidTrick = (cardToBeat, hand) => {
 }
 
 
-const getAllUnavilableCardsPerSuit = (suit, hand) => {
+const getAllUnavilableCardsPerSuit = (suit, hand, cardsPlayed) => {
     let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, suit));
     let usedCards = cardsPlayed.filter((element) => returnOnlySameSuit(element, suit));
     // I can merge the cards in my hand with the used cards
@@ -149,19 +143,46 @@ const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand) => {
     return availableCardsThatBeatMyBest;
 };
 
+const getCardsThatCanBeatMyCard = (myCard, round, hand, cardsPlayed) => {
+    console.log('cardsPlayed test: ', cardsPlayed);
+    let suit  = myCard[myCard.length -1];
+    let cardNumber = parseInt(myCard.substring(0,myCard.indexOf('-')));
+    
+    let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, myCard[myCard.length -1]));
+    let usedCards = getAllUnavilableCardsPerSuit(suit, hand, cardsPlayed);
+    if (round.p1 !== null && round.p1[round.p1.length -1] === round.startSuit)
+            usedCards.push(round.p1);
+    if (round.p2 !== null && round.p2[round.p2.length -1] === round.startSuit)
+            usedCards.push(round.p2);
+    if (round.p3 !== null && round.p3[round.p3.length -1] === round.startSuit)
+            usedCards.push(round.p3);
 
-let card = getNumOfCardsThatCanBeatMyBest('7-D', hand);
-//console.log(card);
+    let formattedUsedCards = getIntsFromCardArray(usedCards);
+    let possibleCards = [2,3,4,5,6,7,8,9,10,11,12,13,14];
+    let cardsOfSuitNotPlayed = [];
+    for (let i = 0; i < possibleCards.length; i++) {
+        if(formattedUsedCards.indexOf(possibleCards[i]) === -1) 
+            cardsOfSuitNotPlayed.push(possibleCards[i]);
+    }
+    console.log('cardsOfSuitNotPlayed',cardsOfSuitNotPlayed);
+    let cardsThatBeatMyCard = cardsOfSuitNotPlayed.filter((element) => element < cardNumber);
+
+
+    return addSuitToNumArray(cardsThatBeatMyCard, suit);
+};
 
 
 
+
+//console.log(getCardsThatCanBeatMyCard('8-D', round, hand, cardsPlayed));
 
  module.exports = {
     getWinningCard,
     getCardToBeat,
     hand,
     getNumOfCardsThatCanBeatMyBest,
-    getAllUnavilableCardsPerSuit
+    getAllUnavilableCardsPerSuit,
+    getCardsThatCanBeatMyCard
  };
 
 

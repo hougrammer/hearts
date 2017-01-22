@@ -1,6 +1,6 @@
 const expect = require('expect');
 const { getCardToBeat, getWinningCard } = require('./hearts');
-const { getPointsInCurrentRound } = require('./risk');
+const { getPercentChanceOfTakingTrick, getPointsInCurrentRound } = require('./risk');
 
 const hand = ['8-D','5-D','2-D','6-C','12-S'];
 
@@ -32,5 +32,35 @@ describe('Accessing risk', () => {
 		let pointTotal = getPointsInCurrentRound(round);
 		expect(pointTotal).toBe(30);
 
+	});
+
+	it('should calculate my % chance of taking a trick with 2 players who must play suit', () => {
+		let round = {
+			startSuit : 'D',
+			playerOrder: 3,
+			p1: '6-D',
+			p2: null,
+			p3: null
+		};
+		let hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
+		let cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '13-H', '12-H'];
+
+		let risk = getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed);
+		expect(risk).toBe('0.50');
+	});
+
+		it('should calculate my % chance of taking a trick with 3 players who must play suit', () => {
+		let round = {
+			startSuit : 'D',
+			playerOrder: 3,
+			p1: null,
+			p2: null,
+			p3: null
+		};
+		let hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
+		let cardsPlayed = ['14-D', '5-D', '13-C', '13-H', '12-H'];
+
+		let risk = getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed);
+		expect(risk).toBe('0.59');
 	});
 });

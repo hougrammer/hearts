@@ -1,5 +1,7 @@
 const { bestFreeCardsToPlay, cardsPlayed,  hand, otherPlayers, pointTotals, round} = require('./config');
-const { getNumOfCardsThatCanBeatMyBest, getAllUnavilableCardsPerSuit } = require('./hearts');
+const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./hearts');
+const {getStatsOfRound } = require('./utils');
+
 
 const getPointsInCurrentRound = round => {
 	let cards = [round.p1, round.p2, round.p3];
@@ -20,13 +22,7 @@ const getPointsInCurrentRound = round => {
 		// TODO:  This block wont work if the start suit is hearts.  I need to assume that people will play hearts
 
 		let unavailableCards = getAllUnavilableCardsPerSuit(round.startSuit, hand);
-		let numOfPlayersWhoCanPlayAnything = 0;
-		if (round.p1 === null && !otherPlayers.p1[round.startSuit])
-			numOfPlayersWhoCanPlayAnything++;
-		if (round.p2 === null && !otherPlayers.p2[round.startSuit])
-			numOfPlayersWhoCanPlayAnything++;
-		if (round.p3 === null && !otherPlayers.p3[round.startSuit])
-			numOfPlayersWhoCanPlayAnything++;
+		let numOfPlayersWhoCanPlayAnything = getNumOfPlayersWhoCanPlayAnything(round);
 
 		let availablePointCards = getAvailablePointCards(cardsPlayed, hand);
 		let potentialAdditionalPoints = 0;
@@ -65,11 +61,66 @@ const addTotalPointsOfCards = cards => {
 	return total;
 };
 
+const getNumOfPlayersWhoCanPlayAnything = round => {
+	let numOfPlayersWhoCanPlayAnything = 0;
+		if (round.p1 === null && !otherPlayers.p1[round.startSuit])
+			numOfPlayersWhoCanPlayAnything++;
+		if (round.p2 === null && !otherPlayers.p2[round.startSuit])
+			numOfPlayersWhoCanPlayAnything++;
+		if (round.p3 === null && !otherPlayers.p3[round.startSuit])
+			numOfPlayersWhoCanPlayAnything++;
+	return numOfPlayersWhoCanPlayAnything;
+}
+
+const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => {
+	console.log('cardsPlayed test1: ', cardsPlayed);
+	console.log('sdhgksjdfhgdkjfgdkjfgjkdfgjkdfngkldfgkldf');
+	let roundStats = getStatsOfRound(round);
+	let cardsThatBeatMyCard = getCardsThatCanBeatMyCard(myBestCard, round, hand, cardsPlayed);
+
+	console.log('playersLeftWhoMustPlaySuit: ', roundStats.playersLeftWhoMustPlaySuit);
+	console.log('cardsThatBeatMyCard', cardsThatBeatMyCard);
+
+	// My best can't beat the trick.  No other players must play suit or 1 other player must
+	// suit and he can definitely beat me.
+	if (roundStats.playersLeftWhoMustPlaySuit === 0 || (roundStats.playersLeftWhoMustPlaySuit === 1 &&  cardsThatBeatMyCard.length > 0)){
+		console.log('I am definitely taking this trick');
+		return 100;
+	}
+
+	// My best can't beat trick.  2 other players must play suit
+	if (roundStats.playersLeftWhoMustPlaySuit === 2 &&  cardsThatBeatMyCard.length > 0){
+		console.log('Theres a chance i can dodge the trick if i play my best');
+		return (Math.pow((1/2),cardsThatBeatMyCard.length) * 2).toFixed(2);
+	}
+
+	// I start the trick.  Everyone must play suit.  <3 cards can beat me.
+	if (roundStats.playersLeftWhoMustPlaySuit === 3 &&  cardsThatBeatMyCard.length < 3){
+		console.log('Im not taking this trick');
+		return 0;
+	}
+
+	if (roundStats.playersLeftWhoMustPlaySuit === 3 &&  cardsThatBeatMyCard.length > 2){
+		console.log('Theres a chance i can dodge the trick if i play my best');
+		return (Math.pow((2/3),cardsThatBeatMyCard.length) * 3).toFixed(2);
+		
+	}
+
+	console.log('Error - getPercentChanceOfTakingTrick encountered an unexpected scenario.');
+	return .50;
+};
 
 
-console.log(getPointsInCurrentRound(round));
+
+
+console.log('');
+console.log('');
+console.log('');
+console.log('');
+console.log(getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed));
 //getAvailablePointCards(cardsPlayed, hand);
 
 module.exports = {
-	getPointsInCurrentRound
+	getPointsInCurrentRound,
+	getPercentChanceOfTakingTrick
 }
