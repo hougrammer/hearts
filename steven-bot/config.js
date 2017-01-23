@@ -11,7 +11,7 @@ p3: null
 };
 
 const hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
-const cardsPlayed = ['14-D', '5-D',  '13-C', '13-H', '12-H'];
+const cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '13-H', '12-H'];
 
 const pointTotals = {
 	'14-H' : 50,
@@ -57,7 +57,7 @@ const otherPlayers = {
 	     S: true,
 	     H: true,
 	     C: true,
-	     D: true,
+	     D: false,
 	     pointsTotal: 0,
 	     pointsRound: 0
 	}

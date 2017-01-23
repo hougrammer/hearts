@@ -1,6 +1,8 @@
 const { bestFreeCardsToPlay, cardsPlayed,  hand, otherPlayers, pointTotals, round} = require('./config');
-const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./hearts');
-const {getStatsOfRound } = require('./utils');
+const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./get-cards');
+const { getStatsOfRound, addSuitToNumArray, OtherPlayer } = require('./utils/utils');
+const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard } = require('./utils/card-utils');
+
 
 
 const getPointsInCurrentRound = round => {
@@ -21,7 +23,7 @@ const getPointsInCurrentRound = round => {
 		//Assume the worst for this else block
 		// TODO:  This block wont work if the start suit is hearts.  I need to assume that people will play hearts
 
-		let unavailableCards = getAllUnavilableCardsPerSuit(round.startSuit, hand);
+		let unavailableCards = getAllUnavilableCardsPerSuit(round.startSuit, hand, cardsPlayed);
 		let numOfPlayersWhoCanPlayAnything = getNumOfPlayersWhoCanPlayAnything(round);
 
 		let availablePointCards = getAvailablePointCards(cardsPlayed, hand);
@@ -51,15 +53,6 @@ const getAvailablePointCards = (cardsPlayed, hand) => {
 	return availablePointCards;
 };
 
-const addTotalPointsOfCards = cards => {
-	let total = 0;
-	for( let i = 0; i < cards.length; i++) {
-		let score = pointTotals[cards[i]];
-		if ( score )
-			total += score;
-	}
-	return total;
-};
 
 const getNumOfPlayersWhoCanPlayAnything = round => {
 	let numOfPlayersWhoCanPlayAnything = 0;
@@ -73,13 +66,15 @@ const getNumOfPlayersWhoCanPlayAnything = round => {
 }
 
 const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => {
-	console.log('cardsPlayed test1: ', cardsPlayed);
-	console.log('sdhgksjdfhgdkjfgdkjfgjkdfgjkdfngkldfgkldf');
 	let roundStats = getStatsOfRound(round);
 	let cardsThatBeatMyCard = getCardsThatCanBeatMyCard(myBestCard, round, hand, cardsPlayed);
 
 	console.log('playersLeftWhoMustPlaySuit: ', roundStats.playersLeftWhoMustPlaySuit);
 	console.log('cardsThatBeatMyCard', cardsThatBeatMyCard);
+
+	// I can beat the worst card in the trick
+	if(roundStats.canAvoidTrick)
+		return 0;
 
 	// My best can't beat the trick.  No other players must play suit or 1 other player must
 	// suit and he can definitely beat me.
@@ -90,8 +85,8 @@ const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => 
 
 	// My best can't beat trick.  2 other players must play suit
 	if (roundStats.playersLeftWhoMustPlaySuit === 2 &&  cardsThatBeatMyCard.length > 0){
-		console.log('Theres a chance i can dodge the trick if i play my best');
-		return (Math.pow((1/2),cardsThatBeatMyCard.length) * 2).toFixed(2);
+		console.log('Theres a chance i can dodge the trick if i play my best (2 people)');
+		return (1-(Math.pow((1/2),cardsThatBeatMyCard.length) * 2).toFixed(2));
 	}
 
 	// I start the trick.  Everyone must play suit.  <3 cards can beat me.
@@ -102,7 +97,7 @@ const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => 
 
 	if (roundStats.playersLeftWhoMustPlaySuit === 3 &&  cardsThatBeatMyCard.length > 2){
 		console.log('Theres a chance i can dodge the trick if i play my best');
-		return (Math.pow((2/3),cardsThatBeatMyCard.length) * 3).toFixed(2);
+		return (1-(Math.pow((2/3),cardsThatBeatMyCard.length) * 3)).toFixed(2);
 		
 	}
 
@@ -111,13 +106,17 @@ const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => 
 };
 
 
+console.log('');
+console.log('');
+console.log('');
+console.log('');
 
 
-console.log('');
-console.log('');
-console.log('');
-console.log('');
-console.log(getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed));
+console.log(getStatsOfRound(round));
+let percent = getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed);
+let score = getPointsInCurrentRound(round);
+
+console.log(`Likely points in round: ${score}.  Chance to take: ${percent}%.`);
 //getAvailablePointCards(cardsPlayed, hand);
 
 module.exports = {

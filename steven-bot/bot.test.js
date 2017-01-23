@@ -1,6 +1,10 @@
 const expect = require('expect');
-const { getCardToBeat, getWinningCard } = require('./hearts');
-const { getPercentChanceOfTakingTrick, getPointsInCurrentRound } = require('./risk');
+const { bestFreeCardsToPlay, cardsPlayed, otherPlayers, pointTotals, round} = require('./config');
+const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./get-cards');
+const { getStatsOfRound, addSuitToNumArray, OtherPlayer } = require('./utils/utils');
+const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard } = require('./utils/card-utils');
+const { getPointsInCurrentRound, getPercentChanceOfTakingTrick } = require('./risk');
+
 
 const hand = ['8-D','5-D','2-D','6-C','12-S'];
 
@@ -38,15 +42,20 @@ describe('Accessing risk', () => {
 		let round = {
 			startSuit : 'D',
 			playerOrder: 3,
-			p1: '6-D',
+			p1: null,
 			p2: null,
 			p3: null
 		};
+		let otherPlayers = {
+			p1: { name: 'p1', D: true },
+	    	p2: { name: 'p2', D: true },
+	    	p3: { name: 'p3', D: true },
+		}
 		let hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
 		let cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '13-H', '12-H'];
 
 		let risk = getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed);
-		expect(risk).toBe('0.50');
+		expect(risk).toBe(0.75);
 	});
 
 		it('should calculate my % chance of taking a trick with 3 players who must play suit', () => {
@@ -57,10 +66,15 @@ describe('Accessing risk', () => {
 			p2: null,
 			p3: null
 		};
+		let otherPlayers = {
+			p1: { name: 'p1', D: true },
+	    	p2: { name: 'p2', D: true },
+	    	p3: { name: 'p3', D: true },
+		}
 		let hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
-		let cardsPlayed = ['14-D', '5-D', '13-C', '13-H', '12-H'];
+		let cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '13-H', '12-H'];
 
 		let risk = getPercentChanceOfTakingTrick('7-D', round, hand, cardsPlayed);
-		expect(risk).toBe('0.59');
+		expect(risk).toBe('0.11');
 	});
 });

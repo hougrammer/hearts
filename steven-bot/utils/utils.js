@@ -1,8 +1,5 @@
-// Utils that aren't focused on cards
-
 const { bestFreeCardsToPlay, cardsPlayed,  hand, otherPlayers, pointTotals, round} = require('../config');
-const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard } = require('./card-utils');
-
+const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard } = require('./card-utils');
 
 const getStatsOfRound = round => {
 	let results = {
@@ -53,11 +50,31 @@ const getStatsOfRound = round => {
 	return results;
 };
 
-
-
-module.exports = {
-	getStatsOfRound
+const addSuitToNumArray = (array, suit) => {
+    let res = [];
+    for (let i = 0; i< array.length; i++) {
+        res.push(`${array[i]}-${suit}`);
+    }
+    return res;
 }
 
-// let res = getStatsOfRound(round);
-// console.log(res);
+const OtherPlayer = function(name) {
+    self = {
+        name: name,
+        hasSpades : true,
+        hasHearts : true,
+        hasClubs : true,
+        hasDiamonds : true,
+
+        pointsTotal : 0,
+        pointsRound: 0
+    };
+    otherPlayers[name] = self;
+    return self;
+};
+
+module.exports = {
+	getStatsOfRound,
+	addSuitToNumArray,
+	OtherPlayer
+};
