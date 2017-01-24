@@ -3,14 +3,13 @@
 const bestFreeCardsToPlay = ['12-S', '14-H','13-H', '12-H', '11-H', '10-H', '9-H', '8-H', '7-H', '6-H', '5-H', '4-H', '3-H', '2-H'];
 
 const round = {
-startSuit : 'D',
-playerOrder: 3,
-p1: '12-H',
-p2: null,
+startSuit : 'S',
+p1: '5-S',
+p2: '4-S',
 p3: null
 };
 
-const hand = ['1-C', '2-C', '15-C', '3-C', '14-H', '7-D', '8-D'];
+const hand = ['1-C', '2-C', '12-C', '6-S', '3-C', '14-H', '7-D', '8-D'];
 const cardsPlayed = ['14-D', '5-D', '3-D', '13-C', '13-H', '12-H'];
 
 const pointTotals = {
@@ -48,16 +47,16 @@ const otherPlayers = {
 	    S: true,
 	    H: true,
 	    C: true,
-	    D: false,
+	    D: true,
 	    pointsTotal: 0,
 	    pointsRound: 0
 	},
  	p3: {
   		name: 'p3',
-	     S: true,
+	     S: false,
 	     H: true,
 	     C: true,
-	     D: false,
+	     D: true,
 	     pointsTotal: 0,
 	     pointsRound: 0
 	}
