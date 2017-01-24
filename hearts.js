@@ -192,7 +192,7 @@ class Game {
 	listHand(playerIndex) {
 		var player = this.players[playerIndex];
 		var ret = '';
-		for (var c of player.hand)
+		for (let c of player.hand)
 			ret += `<a class="list-group-item" onclick="game.playCard(${playerIndex},${c})">`
 					+ cardName(c)
 					+ '</a>';
@@ -206,7 +206,7 @@ class Game {
 	updateHand(playerIndex) {
 		var ids = ['#north-hand', '#west-hand', '#south-hand', '#east-hand'];
 		if (playerIndex == undefined) 
-			for (var i = 0; i < 4; i++)
+			for (let i = 0; i < 4; i++)
 				$(ids[i]).html(this.listHand(i));
 		else
 			$(ids[playerIndex]).html(this.listHand(playerIndex));
@@ -217,7 +217,17 @@ class Game {
 	*/
 	updateScoreboard() {
 		var ids = ['#north-score', '#west-score', '#south-score', '#east-score'];
-		for (var i = 0; i < 4; i++) $(ids[i]).html(this.players[i].score);
+		for (let i = 0; i < 4; i++) $(ids[i]).html(this.players[i].score);
+	}
+
+	/**
+	Updates last trick.
+	*/
+	updateLastTrick() {
+		var h = '';
+		for (let c of this.lastTrick)
+			h += '<li class="list-group-item">' + (c ? cardName(c) : 'n/a') + '</li>';
+		$('#last-trick').html(h);
 	}
 
     /**
@@ -242,7 +252,7 @@ class Game {
 		
 		// Check for following suit.
 		if (this.leadSuit && cardSuit(card) != this.leadSuit) {
-		    for (var c of player.hand) {
+		    for (let c of player.hand) {
 		        if (cardSuit(c) == this.leadSuit) {
 		            this.status(name + ' must play ' + this.leadSuit);
 		            return false;
@@ -294,6 +304,7 @@ class Game {
 
 		// Reset trick and lead suit.
 		this.lastTrick = this.trick;
+		this.updateLastTrick();
 		this.trick = [0, 0, 0, 0];
 		this.leadSuit = '';
 		game.status(taker.name + ' took the last trick.');
@@ -334,8 +345,11 @@ class Game {
 				p.score += (1 + mult) * (goat*100 + pig*-100 + (hearts - hearts%10));
 			}
 
-			// Update scoreboard
-			game.updateScoreboard();
+			// Update stuff
+			this.updateScoreboard();
+			this.lastTrick = [0, 0, 0, 0];
+			this.updateLastTrick();
+
 
 			// Reset taken cards
 			p.taken = [];
@@ -403,6 +417,7 @@ function initGame() {
 	game.currPlayerIndex = game.find2();
 	game.updateHand();
 	game.updateScoreboard();
+	game.updateLastTrick();
 
 	game.status("It is " + game.players[game.currPlayerIndex].name + "'s turn.");
 }

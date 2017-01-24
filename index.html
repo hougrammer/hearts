@@ -41,19 +41,29 @@
 		</div>
 
 		<div class="col-md-4">
-			<h4>North's Score: </h4><span id="north-score">0</span>
-			<h4>West's Score: </h4><span id="west-score">0</span>
-			<h4>South's Score: </h4><span id="south-score">0</span>
-			<h4>East's Score: </h4><span id="east-score">0</span>
+			<div class="col-md-6">
+				<h4>North's Score: </h4><span id="north-score">0</span>
+				<h4>West's Score: </h4><span id="west-score">0</span>
+				<h4>South's Score: </h4><span id="south-score">0</span>
+				<h4>East's Score: </h4><span id="east-score">0</span>
+			</div>
 
-			<hr>
-			<h4>Game Status</h4>
-			<div id="status"></div>
+			<div class="col-md-6">
+				<h4>Last Trick: </h4>
+				<ul class="list-group" id="last-trick"></ul>
+			</div>
 
-			<hr>
-			<p>Click on cards to play them or click "Simulate" to toggle simulation.</p>
-			<button class="btn" onclick="initGame()">New Game</button>
-			<button class="btn" onclick="game.toggleSim()">Simulate</button>
+			<div class="col-md-12">
+				<hr>
+				<h4>Game Status</h4>
+				<div id="status"></div>
+
+				<hr>
+				<p>Click on cards to play them or click "Simulate" to toggle simulation.</p>
+				<button class="btn" onclick="initGame()">New Game</button>
+				<button class="btn" onclick="game.toggleSim()">Simulate</button>
+			</div>
+
 		</div>
 	</div>
 </body>
