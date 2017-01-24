@@ -36,6 +36,16 @@ function sum(arr) {
 }
 
 /**
+Utility array counter.
+*/
+function count(arr, target) {
+	var count = 0;
+	for (var n of arr) 
+		if (n == target) count++;
+	return count;
+}
+
+/**
 Returns suit of card number.
 */
 function cardSuit(number) { return SUITS[Math.floor((number-1)/13)]; }
@@ -119,8 +129,8 @@ class Game {
 		this.players = [north, west, south, east]
 	    this.currPlayerIndex = 0; // Arbitrary.  Will be changed with find2().
 	    this.leadSuit = '';
-	    this.lastTrick = [];
-	    this.trick = [];
+	    this.lastTrick = [0, 0, 0, 0];
+	    this.trick = [0, 0, 0, 0];
 
 	    // Variables for game simulation
 	    this.sim = false;
@@ -183,7 +193,7 @@ class Game {
 		var player = this.players[playerIndex];
 		var ret = '';
 		for (var c of player.hand)
-			ret += '<a class="list-group-item" onclick="game.playCard(${playerIndex},${c})">'
+			ret += `<a class="list-group-item" onclick="game.playCard(${playerIndex},${c})">`
 					+ cardName(c)
 					+ '</a>';
 		return ret;
@@ -244,10 +254,10 @@ class Game {
 		if (!this.leadSuit) this.leadSuit = cardSuit(card);
 
 		// Remove card from player's hand and add it to trick.
-		this.trick.push([playerIndex, player.hand.splice(i, 1)[0]]);
+		this.trick[playerIndex] = player.hand.splice(i, 1)[0];
 
 		// Update current player.
-		if (this.trick.length == 4) this.currPlayerIndex = this.evalTrick();
+		if (count(this.trick, 0) == 0) this.currPlayerIndex = this.evalTrick();
 		else this.currPlayerIndex = this.nextPlayer();
 
 		// Update display.
@@ -265,27 +275,26 @@ class Game {
 	evalTrick() {
 		var takerIndex = 0;
 		var max = -1;
-		var cards = [];
 
 		// Check who played the largest card of lead suit.
-		for (var pc of this.trick) {
-			cards.push(pc[1]);
-			if (pc[1] > max && cardSuit(pc[1]) == this.leadSuit) {
-				takerIndex = pc[0];
-				max = pc[1];
+		for (let i = 0; i < 4; i++) {
+			let c = this.trick[i];
+			if (c > max && cardSuit(c) == this.leadSuit) {
+				takerIndex = i;
+				max = c;
 			}
 		}
 
 		// Give the cards to taker.  Ignore cards not in SPECIALS.
 		var taker = this.players[takerIndex];
-		for (var c of cards) {
+		for (let c of this.trick) {
 			if (c in SPECIALS)
 				taker.taken.push(c);
 		}
 
 		// Reset trick and lead suit.
 		this.lastTrick = this.trick;
-		this.trick = [];
+		this.trick = [0, 0, 0, 0];
 		this.leadSuit = '';
 		game.status(taker.name + ' took the last trick.');
 
