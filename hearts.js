@@ -76,6 +76,13 @@ class Player {
 	}
 
 	/**
+	Plays card.
+	*/
+	playCard(card) {
+		return game.playCard(this.playerIndex, card);
+	}
+
+	/**
 	Check hand for suit.
 	With lots of checks for Steven's suit notation.
 	*/
@@ -112,6 +119,7 @@ class Game {
 		this.players = [north, west, south, east]
 	    this.currPlayerIndex = 0; // Arbitrary.  Will be changed with find2().
 	    this.leadSuit = '';
+	    this.lastTrick = [];
 	    this.trick = [];
 
 	    // Variables for game simulation
@@ -133,18 +141,18 @@ class Game {
     */
     deal() {
 		var deck = [];
-		for (var i = 1; i <= 52; i++) {
+		for (var i = 1; i <= 52; i++)
 			deck.push(i);
-		}
+
 		for (var i = 0; i < 52; i++) {
 			var j = Math.floor(Math.random()*52);
 			var temp = deck[i];
 			deck[i] = deck[j];
 			deck[j] = temp;
 		}
-		for (var i = 0; i < 52; i++) {
+
+		for (var i = 0; i < 52; i++)
 			this.players[i%4].hand.push(deck[i]);
-		}
 
 		var cmp = (a,b) => {return a-b;};
 		for (var p of this.players) p.hand.sort(cmp);
@@ -276,6 +284,7 @@ class Game {
 		}
 
 		// Reset trick and lead suit.
+		this.lastTrick = this.trick;
 		this.trick = [];
 		this.leadSuit = '';
 		game.status(taker.name + ' took the last trick.');
