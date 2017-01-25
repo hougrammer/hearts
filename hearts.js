@@ -127,7 +127,9 @@ Game class.
 class Game {
 	constructor(north, west, south, east) {
 		this.players = [north, west, south, east]
+		this.lastPlayerIndex = -1;
 	    this.currPlayerIndex = 0; // Arbitrary.  Will be changed with find2().
+	    this.lastSuit = '';
 	    this.leadSuit = '';
 	    this.lastTrick = [0, 0, 0, 0];
 	    this.trick = [0, 0, 0, 0];
@@ -145,28 +147,6 @@ class Game {
     	if (msg) $("#status").html(msg);
     	return $("#status").text();
     }
-
-    /**
-	Deals cards to all the players.
-    */
-    deal() {
-		var deck = [];
-		for (var i = 1; i <= 52; i++)
-			deck.push(i);
-
-		for (var i = 0; i < 52; i++) {
-			var j = Math.floor(Math.random()*52);
-			var temp = deck[i];
-			deck[i] = deck[j];
-			deck[j] = temp;
-		}
-
-		for (var i = 0; i < 52; i++)
-			this.players[i%4].hand.push(deck[i]);
-
-		var cmp = (a,b) => {return a-b;};
-		for (var p of this.players) p.hand.sort(cmp);
-	}
 
 	/**
 	Finds the 2 of clubs to determine first player.
@@ -228,6 +208,32 @@ class Game {
 		for (let c of this.lastTrick)
 			h += '<li class="list-group-item">' + (c ? cardName(c) : 'n/a') + '</li>';
 		$('#last-trick').html(h);
+		$('#last-suit').html(this.lastSuit);
+		if (this.lastPlayerIndex != -1) $('#last-player').html(this.players[this.lastPlayerIndex].name);
+	}
+
+    /**
+	Deals cards to all the players.
+    */
+    deal() {
+		var deck = [];
+		for (var i = 1; i <= 52; i++)
+			deck.push(i);
+
+		for (var i = 0; i < 52; i++) {
+			var j = Math.floor(Math.random()*52);
+			var temp = deck[i];
+			deck[i] = deck[j];
+			deck[j] = temp;
+		}
+
+		for (var i = 0; i < 52; i++)
+			this.players[i%4].hand.push(deck[i]);
+
+		var cmp = (a,b) => {return a-b;};
+		for (var p of this.players) p.hand.sort(cmp);
+
+		this.updateHand();
 	}
 
     /**
@@ -267,14 +273,14 @@ class Game {
 		this.trick[playerIndex] = player.hand.splice(i, 1)[0];
 
 		// Update current player.
+		this.lastPlayerIndex = this.currPlayerIndex;
 		if (count(this.trick, 0) == 0) this.currPlayerIndex = this.evalTrick();
 		else this.currPlayerIndex = this.nextPlayer();
 
 		// Update display.
 		this.updateHand(playerIndex);
 
-		// Check for end of round.
-		if (!this.players[this.currPlayerIndex].hand.length) game.evalRound();
+		
 
 		return true;
 	}
@@ -306,8 +312,12 @@ class Game {
 		this.lastTrick = this.trick;
 		this.updateLastTrick();
 		this.trick = [0, 0, 0, 0];
+		this.lastSuit = this.leadSuit;
 		this.leadSuit = '';
 		game.status(taker.name + ' took the last trick.');
+
+		// Check for end of round.
+		if (!this.players[this.currPlayerIndex].hand.length) game.evalRound();
 
 		return takerIndex;
 	}
@@ -345,15 +355,15 @@ class Game {
 				p.score += (1 + mult) * (goat*100 + pig*-100 + (hearts - hearts%10));
 			}
 
-			// Update stuff
-			this.updateScoreboard();
-			this.lastTrick = [0, 0, 0, 0];
-			this.updateLastTrick();
-
-
 			// Reset taken cards
 			p.taken = [];
 		}
+
+		// Update stuff
+		this.updateScoreboard();
+		this.lastTrick = [0, 0, 0, 0];
+		this.lastSuit = '';
+		this.updateLastTrick();
 
 		// Check for a loser.
 		var loser;
@@ -362,7 +372,9 @@ class Game {
 				loser = p;
 
 		// Deal another hand if there is no loser.  Else end game.
-		if (loser == undefined) game.deal();
+		if (loser == undefined) {
+			game.deal();
+		}
 		else {
 			game.status(loser.name + ' loses.');
 
@@ -386,7 +398,7 @@ class Game {
 	*/
 	startSim() {
 		this.sim = true;
-		this.interval = setInterval(this.callAlgo, 10);
+		this.interval = setInterval(this.callAlgo, 20);
 	}
 	stopSim() {
 		this.sim = false;

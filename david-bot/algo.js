@@ -1,10 +1,14 @@
+//const SUITS = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
+
 class Other {
 	constructor(delta) {
-		this.deta = delta;
-		this.clubs = -1;
-		this.diamonds = -1;
-		this.hearts = -1;
-		this.spades = -1;
+		this.delta = delta;
+		this.inside = [-1,-1,-1,-1];
+		this.inferred = [];
+	}
+	reset() {
+		this.inside = [-1,-1,-1,-1];
+		this.inferred = [];
 	}
 }
 
@@ -12,19 +16,17 @@ class DavidBot extends Player{
 	constructor(playerIndex, name) {
 		super(playerIndex, name);
 
-		this.p1 = new Other(1);
-		this.p2 = new Other(2);
-		this.p3 = new Other(3);
+		this.players = [this, new Other(1), new Other(2), new Other(3)];
 
+		this.inside = [0,0,0,0];
 		this.outside = [13,13,13,13];
 
-		this.clubs = 0;
-		this.diamonds = 0;
-		this.hearts = 0;
-		this.spades = 0;
 		this.bad = [50, 9, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30]
 	}
-
+	reset() {
+		this.inside = [0,0,0,0];
+		this.outside = [13,13,13,13];
+	}
 
 	rotateLastTrick() {
 		let ret = [];
@@ -52,27 +54,31 @@ class DavidBot extends Player{
 		this.playCard(this.hand[this.hand.length - 1]);
 	}
 
+	record(delta, card) {
+		let suit = cardSuit(card);
+		let i = SUITS.indexOf(suit);
+		this.outside[i]--;
+
+		// This person ran out
+		if (delta && suit != this.lastSuit)
+			this.players[delta].inside[i] = 0;
+	}
+
 	algorithm() {
 		// On deal, parse hand
 		if (this.hand.length == 13) {
-			this.outside = [13,13,13,13];
-			this.clubs = 0;
-			this.diamonds = 0;
-			this.hearts = 0;
-			this.spades = 0;
+			this.reset();
 			for (let c of this.hand) {
-				switch (cardSuit(c)) {
-					case 'Clubs': this.clubs++; this.outside[0]--; break;
-					case 'Diamonds': this.diamonds++; this.outside[1]--; break;
-					case 'Hearts': this.hearts++; this.outside[2]--; break;
-					case 'Spades': this.spades++; this.outside[3]--; break;
-				}
+				let i = SUITS.indexOf(cardSuit(c));
+				this.inside[i]++;
+				this.outside[i]--;
 			}
 		}
 
 		// Parse last trick
 		let lt = this.rotateLastTrick();
-
+		this.inside[SUITS.indexOf(cardSuit(lt[0]))]--;
+		for (let i = 0; i < 4; i++) this.record(i, lt[i]);
 
 		// I am the first to play
 		if (game.leadSuit == '') {
