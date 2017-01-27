@@ -40,7 +40,7 @@ Utility array counter.
 */
 function count(arr, target) {
 	var count = 0;
-	for (var n of arr) 
+	for (let n of arr) 
 		if (n == target) count++;
 	return count;
 }
@@ -65,6 +65,13 @@ function cardName(number) {
         default: return (number%13)+1 + ' of ' + suit;
     }
 }
+
+/**
+Returns value of card within suit.
+2 is 2
+Ace is 14
+*/
+function cardValue(number) {return (number%13) ? number%13 + 1 : 14;}
 
 /**
 Player class.
@@ -152,7 +159,7 @@ class Game {
 	Finds the 2 of clubs to determine first player.
 	*/
 	find2() {
-		for (var i = 0; i < 4; i++)
+		for (let i = 0; i < 4; i++)
 			if (this.players[i].hand.indexOf(1) != -1)
 				return i;
 	}
@@ -217,21 +224,21 @@ class Game {
     */
     deal() {
 		var deck = [];
-		for (var i = 1; i <= 52; i++)
+		for (let i = 1; i <= 52; i++)
 			deck.push(i);
 
-		for (var i = 0; i < 52; i++) {
+		for (let i = 0; i < 52; i++) {
 			var j = Math.floor(Math.random()*52);
 			var temp = deck[i];
 			deck[i] = deck[j];
 			deck[j] = temp;
 		}
 
-		for (var i = 0; i < 52; i++)
+		for (let i = 0; i < 52; i++)
 			this.players[i%4].hand.push(deck[i]);
 
 		var cmp = (a,b) => {return a-b;};
-		for (var p of this.players) p.hand.sort(cmp);
+		for (let p of this.players) p.hand.sort(cmp);
 
 		this.updateHand();
 	}
@@ -326,14 +333,14 @@ class Game {
 	Evaluates outcome of the round.
 	*/
 	evalRound() {
-		for (var i = 0; i < 4; i++) {
+		for (let i = 0; i < 4; i++) {
 			var p = this.players[i];
 			var mult = false;
 			var goat = false;
 			var pig = false;
 			var hearts = 0;
 
-			for (var c of p.taken) {
+			for (let c of p.taken) {
 				switch (c) {
 					case 9: mult = true; break;
 					case 23: goat = true; break;
@@ -367,7 +374,7 @@ class Game {
 
 		// Check for a loser.
 		var loser;
-		for (var p of this.players) 
+		for (let p of this.players) 
 			if (p.score <= -1000) 
 				loser = p;
 
