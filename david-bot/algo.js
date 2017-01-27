@@ -69,6 +69,30 @@ class DavidBot extends Player{
 			this.players[delta].distro[i] = 0;
 	}
 
+	findPoints() {
+		for (let c in this.bad) {
+			if (game.trick.indexOf(c) != -1)
+				return true;
+		}
+		return false;
+	}
+
+	duck(cards) {
+		let ls = game.leadSuit;
+		let t = game.trick;
+		let max = 0;
+		for (let c of game.trick)
+			if (cardSuit(c) == ls && c > max)
+				max = c;
+		for (let i = cards.length; i; i--) {
+			if (cards[i] < max) {
+				this.playCard(cards[i]);
+				return;
+			}
+		}
+		this.playCard(cards[cards.length-1]);
+	}
+
 	clubStrat() {
 		let cards = [];
 		for (let c of this.hand) 
@@ -82,21 +106,37 @@ class DavidBot extends Player{
 
 		let t = game.trick;
 
-		this.playAny();
+		this.duck(cards);
 
 	}
 
 	diamondStrat() {
 		let cards = [];
-		for (let c of this.hand) 
+		let pens = [];
+		for (let c of this.hand) {
 			if (13 < c && c <= 26) cards.push(c);
+			if (24 <= c && c <= 26) pens.push(c);
+		}
 
 		if (!cards.length) this.stick();
 		if (cards.length == 1) {
 			this.playCard(cards[0]);
 			return;
 		}
-		this.playAny();
+
+		let t = game.trick;
+		let position = 5 - count(game.trick, 0);
+		let ace = t.indexOf(26) != -1;
+		let king = t.indexOf(25) != -1;
+		let queen = t.indexOf(24) != -1;
+		let jack = t.indexOf(23) != -1;
+
+		if (jack) { 
+			this.playCard(cards[cards.length-1]);
+			return;
+		}
+
+		this.duck(cards);
 	}
 
 	heartStrat() {
@@ -109,7 +149,7 @@ class DavidBot extends Player{
 			this.playCard(cards[0]);
 			return;
 		}
-		this.playAny();
+		this.duck(cards);
 	}
 
 	spadeStrat() {
@@ -123,8 +163,46 @@ class DavidBot extends Player{
 			return;
 		}
 
+		let t = game.trick;
+		let position = 5 - count(game.trick, 0);
+		let ace = t.indexOf(52) != -1;
+		let king = t.indexOf(51) != -1;
+		let queen = t.indexOf(50) != -1;
 
-		this.playAny();
+		if (ace) {
+			if (this.playCard(50)) return;
+			if (this.playCard(51)) return;
+			this.playCard(cards[cards.length-1]);
+			return;
+		}
+		if (king) {
+			if (this.playCard(50)) return;
+			if (queen) {
+				for (let i = cards.length; i; i--)
+					if (cards[i] < 52) {
+						this.playCard(cards[i]);
+						return;
+					}
+			}
+			this.playCard(cards[cards.length-1]);
+			return;
+		}
+		if (queen) {
+			for (let i = cards.length; i; i--) 
+				if (cards[i] < 50)
+					this.playCard(cards[i]);
+			this.playCard(cards[cards.length-1]);
+			return;
+		}
+		if (position == 4) {
+			if (!this.findPoints()) {
+				this.playCard(cards[cards.length-1]);
+				return;
+			}
+			this.duck(cards);
+			return;
+		}
+		this.duck(cards);
 	}
 
 	algorithm() {

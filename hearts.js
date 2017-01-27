@@ -405,7 +405,7 @@ class Game {
 	*/
 	startSim() {
 		this.sim = true;
-		this.interval = setInterval(this.callAlgo, 20);
+		this.interval = setInterval(this.callAlgo, 10);
 	}
 	stopSim() {
 		this.sim = false;
