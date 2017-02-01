@@ -80,6 +80,7 @@ class DavidBot extends Player{
 	duck(cards) {
 		let ls = game.leadSuit;
 		let t = game.trick;
+		let position = 5 - count(game.trick, 0);
 		let max = 0;
 		for (let c of game.trick)
 			if (cardSuit(c) == ls && c > max)
@@ -90,7 +91,11 @@ class DavidBot extends Player{
 				return;
 			}
 		}
-		this.playCard(cards[cards.length-1]);
+		if (position == 4) {
+			this.playCard(cards[cards.length-1]);
+			return;
+		}
+		this.playCard(cards[0]);
 	}
 
 	clubStrat() {
