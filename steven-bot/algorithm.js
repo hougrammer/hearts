@@ -1,7 +1,7 @@
 const { bestFreeCardsToPlay, cardsPlayed,  hand, otherPlayers, pointTotals, round} = require('./config');
-const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit, getFreeCardToPlay } = require('./get-cards');
+const { getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit, getFreeCardToPlay } = require('./get-cards');
 const { getStatsOfRound, addSuitToNumArray, OtherPlayer } = require('./utils/utils');
-const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard, getHighestNonWinningCard, getLowestNonWinningCard } = require('./utils/card-utils');
+const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard, getHighestNonWinningCard, getLowestNonWinningCard, getIntFromCard } = require('./utils/card-utils');
 const { getPercentChanceOfTakingTrick, getPointsInCurrentRound } = require('./risk');
 
 const logObject = {};
@@ -18,7 +18,8 @@ const playRound = (round, hand, cardsPlayed, test) => {
 	logObject.roundStats = roundStats;
 
 	if( roundStats.playersWhoPlayedSuit + roundStats.playersWhoDidNotPlaySuit === 0) {
-		// I am starting this round
+		logObject.reasonForPlay= 'I played the card which results in me getting the lowest points';
+		return getStartOfRoundCard(round, hand, cardsPlayed);
 	}
 
 	// I am not starting this round.
@@ -38,7 +39,8 @@ const playRound = (round, hand, cardsPlayed, test) => {
 	}
 
 	let myBestCard = getLowestNonWinningCard(cardToBeat, hand);
-	let percent = getPercentChanceOfTakingTrick(myBestCard, round, hand, cardsPlayed);
+	let cardsThatBeatMyCard = getCardsThatCanBeatMyCard(myBestCard, round, hand, cardsPlayed);
+	let percent = getPercentChanceOfTakingTrick(round, cardsThatBeatMyCard);
 	let score = getPointsInCurrentRound(round);
 
 	logObject.risk = `Likely points in round: ${score}.  Chance to take: ${percent}%.`;
@@ -62,6 +64,53 @@ const playRound = (round, hand, cardsPlayed, test) => {
 	return cardToPlay;
 };
 
-console.log(playRound(round, hand, cardsPlayed));
-console.log(logObject.reasonForPlay);
+//Logic is #of potential points * chance of taking trick.  
+const getStartOfRoundCard = (round, hand, cardsPlayed) => {
+	let roundStats = getStatsOfRound(round);
+	var chanceToTakeForEachCard = {};
+    let suits = ['C', 'D', 'S', 'H'];
+    for (let i = 0; i < suits.length; i++) {
+    	let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, suits[i]));
+        let usedCards = cardsPlayed.filter((element) => returnOnlySameSuit(element, suits[i]));
+
+        let potentialRound = {
+        	startSuit : suits[i],
+			p1: null,
+			p2: null,
+			p3: null
+        };
+        let potentialPointsInRound = getPointsInCurrentRound(potentialRound);
+        for(let j = 0; j < suitInMyHand.length; j++) {
+        	let cardsThatBeatMyCard = getCardsThatCanBeatMyCard(suitInMyHand[j], round, hand, cardsPlayed);
+        	let chanceToTakeTrick = getPercentChanceOfTakingTrick(round, cardsThatBeatMyCard);
+        	let score = chanceToTakeTrick *  50 //potentialPointsInRound;
+
+        	console.log(`${suitInMyHand[j]} -- ${chanceToTakeTrick}`);
+
+        	chanceToTakeForEachCard[suitInMyHand[j]] = score;
+    	}
+    }
+
+/*
+    // Now that I have all of my cards and their score,
+    // I will return the lowest score (highest numerical suit)
+
+    // Import lodash and find a function to do this
+    let orderedScore = chanceToTakeForEachCard
+    let getAllLowestScores = orderedScore.filter
+    // magically it becomes an array?
+    for (let i = 0; i < getAllLowestScores.length; i++) {
+    	let cardNum = getIntFromCard(getAllLowestScores[i]);
+    	let highestCard = false;
+    	for (let j = 0; j < getAllLowestScores.length; j++) {
+    		if ()
+    }
+*/
+    console.log(chanceToTakeForEachCard);
+ 
+};
+
+console.log(getStartOfRoundCard(round, hand, cardsPlayed));
+//console.log(playRound(round, hand, cardsPlayed));
+//console.log(logObject.reasonForPlay);
 //console.log(JSON.stringify(logObject, null, 2));

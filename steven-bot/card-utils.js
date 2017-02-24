@@ -16,6 +16,10 @@ const getIntsFromCardArray = arrayOfCards => {
     return formattedCards;
 };
 
+const getIntFromCard = card => {
+    return parseInt(card.substring(0,card.indexOf('-')));
+}
+
 const addTotalPointsOfCards = cards => {
 	let total = 0;
 	for( let i = 0; i < cards.length; i++) {
@@ -61,5 +65,6 @@ module.exports = {
 	getIntsFromCardArray,
 	addTotalPointsOfCards,
 	getCardToBeat,
+    getIntFromCard,
 	getWinningCard
 };

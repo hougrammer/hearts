@@ -3,6 +3,7 @@ const { getStatsOfRound, addSuitToNumArray, OtherPlayer } = require('./utils/uti
 const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard } = require('./utils/card-utils');
 
 
+
 const getFreeCardToPlay = (hand) => {
     for (let i = 0; i < bestFreeCardsToPlay.length ; i++) {
         let indexOfCard = hand.indexOf(bestFreeCardsToPlay[i]);
@@ -32,11 +33,11 @@ const getAllUnavilableCardsPerSuit = (suit, hand, cardsPlayed) => {
     return usedCards;
 };
 
-const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand) => {
+const getNumOfCardsThatCanBeatMyBest = (myBestCard, hand, cardsPlayed) => {
     let suit  = myBestCard[myBestCard.length -1];
     let myBest = parseInt(myBestCard.substring(0,myBestCard.indexOf('-')));
     let suitInMyHand = hand.filter((element) => returnOnlySameSuit(element, myBestCard[myBestCard.length -1]));
-    let usedCards = getAllUnavilableCardsPerSuit(suit, hand);
+    let usedCards = getAllUnavilableCardsPerSuit(suit, hand, cardsPlayed);
 
     let formattedUsedCards = getIntsFromCardArray(usedCards);
     let usedCardsThatBeatMyBest = formattedUsedCards.filter((element) => element < myBest);
@@ -66,8 +67,7 @@ const getCardsThatCanBeatMyCard = (myCard, round, hand, cardsPlayed) => {
     }
     //console.log('cardsOfSuitNotPlayed',cardsOfSuitNotPlayed);
     let cardsThatBeatMyCard = cardsOfSuitNotPlayed.filter((element) => element < cardNumber);
-
-
+    
     return addSuitToNumArray(cardsThatBeatMyCard, suit);
 };
 
