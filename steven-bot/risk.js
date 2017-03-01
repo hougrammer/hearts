@@ -1,5 +1,5 @@
 const { bestFreeCardsToPlay, cardsPlayed,  hand, otherPlayers, pointTotals, round} = require('./config');
-const { getNumOfCardsThatCanBeatMyBest, getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./get-cards');
+const { getCardsThatCanBeatMyCard, getAllUnavilableCardsPerSuit } = require('./get-cards');
 const { getStatsOfRound, addSuitToNumArray, OtherPlayer } = require('./utils/utils');
 const { returnOnlySameSuit, getIntsFromCardArray, addTotalPointsOfCards, getCardToBeat, getWinningCard, getSuitOfCard } = require('./utils/card-utils');
 
@@ -59,10 +59,10 @@ const getNumOfPlayersWhoCanPlayAnything = round => {
 	return numOfPlayersWhoCanPlayAnything;
 }
 
-const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => {
+const getPercentChanceOfTakingTrick = (round, cardsThatBeatMyCard) => {
 	let roundStats = getStatsOfRound(round);
-	let cardsThatBeatMyCard = getCardsThatCanBeatMyCard(myBestCard, round, hand, cardsPlayed);
 
+	//console.log(`${myBestCard}: ${cardsThatBeatMyCard}`);
 	// I can beat the worst card in the trick
 	if(roundStats.canAvoidTrick)
 		return 0;
@@ -72,6 +72,16 @@ const getPercentChanceOfTakingTrick = (myBestCard, round, hand, cardsPlayed) => 
 	if (roundStats.playersLeftWhoMustPlaySuit === 0 || (roundStats.playersLeftWhoMustPlaySuit === 1 &&  cardsThatBeatMyCard.length > 0)){
 		//console.log('I am definitely taking this trick');
 		return 100;
+	}
+
+	// I can't beat the trick.  1 other player must play suit but he can beat me
+	if (roundStats.playersLeftWhoMustPlaySuit === 1 &&  cardsThatBeatMyCard.length > 0){
+		return 100;
+	}
+
+	// I can't beat the trick.  1 other player must play suit but he can't beat me
+	if (roundStats.playersLeftWhoMustPlaySuit === 1 &&  cardsThatBeatMyCard.length === 0){
+		return 0;
 	}
 
 	// My best can't beat trick.  2 other players must play suit
